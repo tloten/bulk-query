@@ -1,0 +1,33 @@
+﻿<Window x:Class="BulkQuery.AddServerDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BulkQuery"
+        mc:Ignorable="d"
+        Title="Add Server" Height="192" Width="495">
+    <Grid Margin="15">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Label Grid.Column="1" Grid.Row="0" >Server Connection String</Label>
+        <TextBox Name="TextBoxConnectionString" Grid.Column="1" Grid.Row="1" MinWidth="250">Server=(localdb)\Projects;Integrated Security=True;</TextBox>
+
+        <Label Grid.Column="1" Grid.Row="2" >Server Label</Label>
+        <TextBox Name="TextBoxDisplayName" Grid.Column="1" Grid.Row="3" MinWidth="250">Test-1</TextBox>
+
+        <WrapPanel Grid.Row="4" Grid.ColumnSpan="2" HorizontalAlignment="Right" Margin="0,15,0,0">
+            <Button IsDefault="True" Name="BtnAddServer" Click="BtnAddServer_Click" MinWidth="80" Margin="0,0,10,0">_Add Server</Button>
+            <Button IsCancel="True" MinWidth="60">_Cancel</Button>
+        </WrapPanel>
+    </Grid>
+</Window>

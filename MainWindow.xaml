@@ -1,0 +1,72 @@
+﻿<Window x:Class="BulkQuery.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BulkQuery"
+        xmlns:properties="clr-namespace:BulkQuery.Properties"
+        mc:Ignorable="d"
+        Title="Bulk Query" Height="500" Width="800" Loaded="Window_Loaded" Closing="Window_Closing" KeyDown="Window_KeyDown">
+    
+    <Window.Resources>
+        <ResourceDictionary>
+            <Style x:Key="TreeViewItemStyle" TargetType="TreeViewItem">
+                <Setter Property="IsExpanded" Value="True" />
+                <Setter Property="IsSelected" Value="{Binding IsInitiallySelected, Mode=OneTime}" />
+                <Setter Property="KeyboardNavigation.AcceptsReturn" Value="True" />
+                <EventSetter Event="PreviewMouseRightButtonDown" Handler="DatabasesTreeView_PreviewMouseButton" />
+            </Style>
+            
+            <HierarchicalDataTemplate x:Key="CheckBoxItemTemplate" ItemsSource="{Binding Children, Mode=OneTime}">
+                <StackPanel Orientation="Horizontal">
+                    <CheckBox Focusable="False" IsChecked="{Binding IsChecked}" VerticalAlignment="Center" />
+                    <ContentPresenter x:Name="Content" Content="{Binding Name, Mode=OneTime}" Margin="2,0" />
+                </StackPanel>
+            </HierarchicalDataTemplate>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_File">
+                <MenuItem Header="_Add Server" Click="MenuItem_AddServer_OnClick"  />
+                <MenuItem Header="_Hide System Databases" Name="MenuItemHideSystemDatabases" IsCheckable="True" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=HideSystemDatabases}" />
+                <MenuItem Header="_Exit" />
+            </MenuItem>
+            <MenuItem Header="_Help">
+                <MenuItem Header="_View On Github" Click="MenuItem_Github_Click"  />
+            </MenuItem>
+        </Menu>
+        <TextBox AcceptsReturn="True" />
+
+        <Grid Name="MainGrid">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="250" />
+                <ColumnDefinition Width="5" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <TreeView Grid.Column="0" x:Name="DatabasesTreeView" 
+                          ItemContainerStyle="{StaticResource TreeViewItemStyle}"
+                          ItemTemplate="{StaticResource CheckBoxItemTemplate}" />
+            <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" DragDelta="MainGrid_OnDragDelta" />
+            <Grid Grid.Column="2" Name="RightHandGrid">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="250" />
+                    <RowDefinition Height="5" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <DockPanel Grid.Row="0">
+                    <StackPanel Margin="5" Orientation="Horizontal" DockPanel.Dock="Bottom">
+                        <Button Click="ButtonQuery_OnClick" Padding="10 2">Run Query (F5)</Button>
+                    </StackPanel>
+                    <TextBox x:Name="QueryTextBox" TextWrapping="Wrap" AcceptsReturn="True" FontFamily="Courier New" />
+                </DockPanel>
+                <GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch" DragDelta="RightHandGrid_OnDragDelta" />
+                <DockPanel Grid.Row="2">
+                    <TextBox x:Name="TextBoxMessages" DockPanel.Dock="Top" Visibility="Collapsed" Height="50" IsReadOnly="True" Foreground="Red" />
+                    <DataGrid x:Name="ResultDataGrid" IsReadOnly="True" SelectionUnit="CellOrRowHeader" AreRowDetailsFrozen="True" />
+                </DockPanel>
+            </Grid>
+        </Grid>
+    </DockPanel>
+</Window>
