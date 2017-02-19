@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -192,7 +193,9 @@ namespace BulkQuery
         {
             var query = QueryTextBox.Text;
             var databases = GetSelectedDatabases().ToList();
-            var result = QueryRunner.BulkQuery(databases, query);
+            var timer = Stopwatch.StartNew();
+            var result = QueryRunner.BulkQuery(databases, query).Result;
+            Debug.WriteLine("Total query time: " + timer.ElapsedMilliseconds);
             if (result.Messages.Count > 0)
             {
                 TextBoxMessages.Text = string.Join(Environment.NewLine, result.Messages);
