@@ -75,6 +75,14 @@ namespace BulkQuery
 
         private void SaveServers(List<ServerDefinition> servers)
         {
+            foreach (var node in databaseTreeModel)
+            {
+                node.Value.ServerDefinition.SelectedDatabases = node.Children
+                    .Where(cn => cn.IsChecked == true)
+                    .Select(cn => cn.Value.DatabaseDefinition.DatabaseName)
+                    .ToList();
+            }
+
             Settings.Default.ServersList.Servers = servers;
             Settings.Default.Save();
         }
@@ -106,10 +114,10 @@ namespace BulkQuery
                     var dbNode = new DatabaseTreeNode
                     {
                         IsServerNode = false,
-                        DatabaseDefinition = db
+                        DatabaseDefinition = db,
                     };
                     var dbNodeViewModel = new TreeViewModel<DatabaseTreeNode>(db.DatabaseName, dbNode);
-                    dbNodeViewModel.IsChecked = true;
+                    dbNodeViewModel.IsChecked = server.SelectedDatabases?.Contains(db.DatabaseName);
                     serverNodeViewModel.Children.Add(dbNodeViewModel);
                 }
             }
@@ -144,7 +152,7 @@ namespace BulkQuery
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            Settings.Default.Save();
+            SaveServers(GetSavedServers());
         }
 
         private static DependencyObject GetDependencyObjectFromVisualTree(DependencyObject startObject, Type type)
