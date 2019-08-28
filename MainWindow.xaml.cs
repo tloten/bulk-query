@@ -46,6 +46,19 @@ namespace BulkQuery
             }
 
             DatabasesTreeView.ItemsSource = databaseTreeModel;
+            DatabasesTreeView.KeyDown += (o, ev) =>
+            {
+                if (ev.Key == Key.Space)
+                {
+                    if (o is TreeView treeView && treeView.SelectedItem is TreeViewModel<DatabaseTreeNode> selectedItem)
+                    {
+                        selectedItem.IsChecked ^= true;
+                        ev.Handled = true;
+                    }
+                }
+            };
+            DatabasesTreeView.Focus();
+            InputManager.Current.ProcessInput(new KeyEventArgs(Keyboard.PrimaryDevice, PresentationSource.FromVisual(DatabasesTreeView), 0, Key.Down) { RoutedEvent = Keyboard.KeyDownEvent });
         }
 
         private List<ServerDefinition> GetSavedServers()
@@ -74,7 +87,9 @@ namespace BulkQuery
                 var serverNodeViewModel = new TreeViewModel<DatabaseTreeNode>(server.DisplayName, serverNode);
                 databaseTreeModel.Add(serverNodeViewModel);
 
-                foreach (var db in databases)
+                serverNodeViewModel.IsChecked = true;
+
+                foreach (var db in databases.OrderBy(db => db.DatabaseName))
                 {
                     if (Settings.Default.HideSystemDatabases && systemDatabases.Contains(db.DatabaseName))
                     {
@@ -87,6 +102,7 @@ namespace BulkQuery
                         DatabaseDefinition = db
                     };
                     var dbNodeViewModel = new TreeViewModel<DatabaseTreeNode>(db.DatabaseName, dbNode);
+                    dbNodeViewModel.IsChecked = true;
                     serverNodeViewModel.Children.Add(dbNodeViewModel);
                 }
             }
