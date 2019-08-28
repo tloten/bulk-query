@@ -191,7 +191,16 @@ namespace BulkQuery
                 foreach (DataRow drow in dtSchema.Rows)
                 {
                     string columnName = Convert.ToString(drow["ColumnName"]);
-                    DataColumn column = new DataColumn(columnName, (Type)(drow["DataType"]));
+                    Type dataType = Type.GetType("String");
+                    try
+                    {
+                        dataType = (Type)drow["DataType"];
+                    }
+                    catch (Exception)
+                    {
+                    }
+
+                    DataColumn column = new DataColumn(columnName, dataType);
                     column.AllowDBNull = (bool)drow["AllowDBNull"];
                     listCols.Add(column);
                     dt.Columns.Add(column);
