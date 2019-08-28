@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -40,10 +41,16 @@ namespace BulkQuery
                 Settings.Default.Save();
             }
 
-            foreach (var server in GetSavedServers())
+            var servers = GetSavedServers();
+            var serverTasks = new List<Task>();
+            foreach (var server in servers)
             {
-                AddNodesForServer(server);
+                var task = new Task(() => AddNodesForServer(server));
+                serverTasks.Add(task);
+                task.Start();
             }
+            Task.WaitAll(serverTasks.ToArray());
+            databaseTreeModel.Sort(new Comparison<TreeViewModel<DatabaseTreeNode>>((i,j) => i.Value.ServerDefinition.DisplayName.CompareTo(j.Value.ServerDefinition.DisplayName)));
 
             DatabasesTreeView.ItemsSource = databaseTreeModel;
             DatabasesTreeView.KeyDown += (o, ev) =>
