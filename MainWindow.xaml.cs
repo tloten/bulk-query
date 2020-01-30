@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -106,6 +106,7 @@ namespace BulkQuery
                     var dbNodeViewModel = new TreeViewModel<DatabaseTreeNode>(db.DatabaseName, dbNode);
                     dbNodeViewModel.IsChecked = server.SelectedDatabases?.Contains(db.DatabaseName);
                     serverNodeViewModel.Children.Add(dbNodeViewModel);
+                    dbNodeViewModel.InitParent(serverNodeViewModel);
                 }
             }
             catch(Exception ex)
