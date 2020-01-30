@@ -30,7 +30,7 @@
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="_File">
                 <MenuItem Header="_Add Server" Click="MenuItem_AddServer_OnClick"  />
-                <MenuItem Header="_Hide System Databases" Name="MenuItemHideSystemDatabases" IsCheckable="True" IsChecked="{Binding Source={x:Static properties:Settings.Default}, Path=HideSystemDatabases}" />
+                <MenuItem Header="_Hide System Databases" Name="MenuItemHideSystemDatabases" IsCheckable="True" IsChecked="{Binding Path=Settings.HideSystemDatabases, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" />
                 <MenuItem Header="_Exit" />
             </MenuItem>
             <MenuItem Header="_Help">

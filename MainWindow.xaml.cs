@@ -20,34 +20,27 @@ namespace BulkQuery
     {
         private readonly List<TreeViewModel<DatabaseTreeNode>> databaseTreeModel = new List<TreeViewModel<DatabaseTreeNode>>();
         private readonly string[] systemDatabases = {"master", "model", "msdb", "tempdb"};
+        private readonly UserSettingsManager<BulkQueryUserSettings> settingsManager;
 
         public MainWindow()
         {
             InitializeComponent();
+            settingsManager = new UserSettingsManager<BulkQueryUserSettings>("BulkQuery.settings.json");
+            Settings = settingsManager.LoadSettings() ?? new BulkQueryUserSettings { Servers = new List<ServerDefinition>() };
+            Settings.Servers = Settings.Servers ?? new List<ServerDefinition>();
         }
+
+        public BulkQueryUserSettings Settings { get; private set; }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            if (Settings.Default.NeedsUpgrade)
-            {
-                Settings.Default.Upgrade();
-                Settings.Default.NeedsUpgrade = false;
-                Settings.Default.Save();
-            }
-
-            if (Settings.Default.ServersList?.Servers == null)
-            {
-                Settings.Default.ServersList = new ServersList();
-                Settings.Default.Save();
-            }
-
-            var servers = GetSavedServers();
             var serverTasks = new List<Task>();
-            foreach (var server in servers)
+            foreach (var server in Settings.Servers)
             {
                 var task = new Task(() => AddNodesForServer(server));
                 serverTasks.Add(task);
                 task.Start();
+
             }
             Task.WaitAll(serverTasks.ToArray());
             databaseTreeModel.Sort(new Comparison<TreeViewModel<DatabaseTreeNode>>((i,j) => i.Value.ServerDefinition.DisplayName.CompareTo(j.Value.ServerDefinition.DisplayName)));
@@ -68,12 +61,7 @@ namespace BulkQuery
             InputManager.Current.ProcessInput(new KeyEventArgs(Keyboard.PrimaryDevice, PresentationSource.FromVisual(DatabasesTreeView), 0, Key.Down) { RoutedEvent = Keyboard.KeyDownEvent });
         }
 
-        private List<ServerDefinition> GetSavedServers()
-        {
-            return Settings.Default.ServersList?.Servers ?? new List<ServerDefinition>();
-        }
-
-        private void SaveServers(List<ServerDefinition> servers)
+        private void SaveSettings()
         {
             foreach (var node in databaseTreeModel)
             {
@@ -82,9 +70,8 @@ namespace BulkQuery
                     .Select(cn => cn.Value.DatabaseDefinition.DatabaseName)
                     .ToList();
             }
-
-            Settings.Default.ServersList.Servers = servers;
-            Settings.Default.Save();
+            Settings = Settings ?? new BulkQueryUserSettings();
+            settingsManager.SaveSettings(Settings);
         }
 
         private void AddNodesForServer(ServerDefinition server)
@@ -106,7 +93,7 @@ namespace BulkQuery
 
                 foreach (var db in databases.OrderBy(db => db.DatabaseName))
                 {
-                    if (Settings.Default.HideSystemDatabases && systemDatabases.Contains(db.DatabaseName))
+                    if (Settings.HideSystemDatabases && systemDatabases.Contains(db.DatabaseName))
                     {
                         continue;
                     }
@@ -135,7 +122,7 @@ namespace BulkQuery
             AddServerDialog dialog = new AddServerDialog();
             if (dialog.ShowDialog() == true)
             {
-                var servers = GetSavedServers();
+                var servers = Settings.Servers;
                 if (servers.Any(s => s.DisplayName == dialog.ServerDisplayName))
                 {
                     MessageBox.Show("A server already exists with this name.\nChoose a different name and try again.", "", MessageBoxButton.OK, MessageBoxImage.Exclamation);
@@ -146,13 +133,13 @@ namespace BulkQuery
                 AddNodesForServer(server);
 
                 servers.Add(server);
-                SaveServers(servers);
+                SaveSettings();
             }
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            SaveServers(GetSavedServers());
+            SaveSettings();
         }
 
         private static DependencyObject GetDependencyObjectFromVisualTree(DependencyObject startObject, Type type)
@@ -199,9 +186,9 @@ namespace BulkQuery
 
         private void RemoveServer(ServerDefinition server)
         {
-            var servers = GetSavedServers();
+            var servers = Settings.Servers;
             servers.Remove(server);
-            SaveServers(servers);
+            SaveSettings();
             var nodeToRemove = databaseTreeModel.FirstOrDefault(s => s.Value.ServerDefinition == server);
             databaseTreeModel.Remove(nodeToRemove);
             DatabasesTreeView.Items.Refresh();
