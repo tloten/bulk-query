@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -26,7 +26,12 @@ namespace BulkQuery
         {
             InitializeComponent();
             settingsManager = new UserSettingsManager<BulkQueryUserSettings>("BulkQuery.settings.json");
-            Settings = settingsManager.LoadSettings() ?? new BulkQueryUserSettings { Servers = new List<ServerDefinition>() };
+            Settings = settingsManager.LoadSettings() ?? new BulkQueryUserSettings
+            {
+                Servers = new List<ServerDefinition>(),
+                HideSystemDatabases = true,
+                SqlTimeout = 60,
+            };
             Settings.Servers = Settings.Servers ?? new List<ServerDefinition>();
         }
 
@@ -104,7 +109,7 @@ namespace BulkQuery
                         DatabaseDefinition = db,
                     };
                     var dbNodeViewModel = new TreeViewModel<DatabaseTreeNode>(db.DatabaseName, dbNode);
-                    dbNodeViewModel.IsChecked = server.SelectedDatabases?.Contains(db.DatabaseName);
+                    dbNodeViewModel.IsChecked = server.SelectedDatabases.Contains(db.DatabaseName);
                     serverNodeViewModel.Children.Add(dbNodeViewModel);
                     dbNodeViewModel.InitParent(serverNodeViewModel);
                 }
@@ -213,7 +218,7 @@ namespace BulkQuery
             var query = QueryTextBox.Text;
             var databases = GetSelectedDatabases().ToList();
             var timer = Stopwatch.StartNew();
-            var result = QueryRunner.BulkQuery(databases, query).Result;
+            var result = QueryRunner.BulkQuery(databases, query, Settings.SqlTimeout).Result;
             Debug.WriteLine("Total query time: " + timer.ElapsedMilliseconds);
             if (result.Messages.Count > 0)
             {
@@ -251,6 +256,11 @@ namespace BulkQuery
             {
                 RunQuery();
             }
+        }
+        private void ValidateTextboxEntryIsInteger(object sender, TextCompositionEventArgs e)
+        {
+            if (!int.TryParse(e.Text, out var _))
+                e.Handled = true;
         }
     }
 

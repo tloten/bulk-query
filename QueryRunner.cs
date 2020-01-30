@@ -61,18 +61,18 @@ namespace BulkQuery
             public DataTable ResultTable { get; set; }
         }
 
-        public static Task<QueryResult> BulkQuery(IList<DatabaseDefinition> databases, string query)
+        public static Task<QueryResult> BulkQuery(IList<DatabaseDefinition> databases, string query, int sqlTimeout)
         {
             // Needed to push all async code to thread pool thread (otherwise UI thread attempts to keep thread affinity 
             // for each async continuation).
             // http://stackoverflow.com/a/14485163/505457
-            return Task.Run(() => BulkQueryInternal(databases, query));
+            return Task.Run(() => BulkQueryInternal(databases, query, sqlTimeout));
         }
 
-        private static async Task<QueryResult> BulkQueryInternal(IList<DatabaseDefinition> databases, string query)
+        private static async Task<QueryResult> BulkQueryInternal(IList<DatabaseDefinition> databases, string query, int sqlTimeout)
         {
             var resultsTasks = databases
-                .Select(db => SingleQuery(db, query))
+                .Select(db => SingleQuery(db, query, sqlTimeout))
                 .ToList();
 
             await Task.WhenAll(resultsTasks);
@@ -117,7 +117,7 @@ namespace BulkQuery
             };
         }
 
-        private static async Task<QueryResult> SingleQuery(DatabaseDefinition db, string query)
+        private static async Task<QueryResult> SingleQuery(DatabaseDefinition db, string query, int sqlTimeout)
         {
 
             var result = new QueryResult
@@ -144,6 +144,7 @@ namespace BulkQuery
                     await connection.OpenAsync();
                     var command = connection.CreateCommand();
                     command.CommandText = query;
+                    command.CommandTimeout = sqlTimeout;
                     Debug.WriteLine("querying " + friendlyDbName);
                     using (var dataReader = await command.ExecuteReaderAsync())
                     {

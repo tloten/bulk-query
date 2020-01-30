@@ -20,6 +20,7 @@ namespace BulkQuery
         {
             DisplayName = displayName;
             ConnectionString = connectionString;
+            SelectedDatabases = new List<string>();
         }
     }
 }
