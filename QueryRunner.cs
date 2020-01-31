@@ -119,20 +119,12 @@ namespace BulkQuery
 
         private static async Task<QueryResult> SingleQuery(DatabaseDefinition db, string query, int sqlTimeout)
         {
-
             var result = new QueryResult
             {
                 Messages = new List<string>()
             };
 
-            //            var isDbNameUnique = databases.Count(d => d.DatabaseName == db.DatabaseName) == 1;
-            //            var friendlyDbName = db.DatabaseName;
-            //            if (!isDbNameUnique)
-            //            {
-            //                friendlyDbName += " - " + db.Server.DisplayName;
-            //            }
             var friendlyDbName = db.DatabaseName + " - " + db.Server.DisplayName;
-
 
             var builder = new SqlConnectionStringBuilder(db.Server.ConnectionString);
             builder.InitialCatalog = db.DatabaseName;
@@ -184,19 +176,23 @@ namespace BulkQuery
                                 result.ResultTable.TableName = friendlyDbName;
                                 Debug.WriteLine("finished reading results from " + friendlyDbName);
 
-                                // Add a column that shows which DB it came from.
-                                var sourceCol = new DataColumn("Source Database", typeof(string));
-                                result.ResultTable.Columns.Add(sourceCol);
+                                // Add columns that shows which DB it came from.
+                                var sourceServerCol = new DataColumn("Server", typeof(string));
+                                var sourceDatabaseCol = new DataColumn("Database", typeof(string));
+                                result.ResultTable.Columns.Add(sourceServerCol);
+                                result.ResultTable.Columns.Add(sourceDatabaseCol);
                                 foreach (var col in result.ResultTable.Columns.Cast<DataColumn>().ToList())
                                 {
-                                    if (col != sourceCol)
-                                        col.SetOrdinal(col.Ordinal + 1);
+                                    if (col != sourceServerCol && col != sourceDatabaseCol)
+                                        col.SetOrdinal(col.Ordinal + 2);
                                 }
-                                sourceCol.SetOrdinal(0);
+                                sourceServerCol.SetOrdinal(0);
+                                sourceDatabaseCol.SetOrdinal(1);
 
                                 foreach (var row in result.ResultTable.Rows.Cast<DataRow>())
                                 {
-                                    row[sourceCol] = friendlyDbName;
+                                    row[sourceServerCol] = db.Server.DisplayName;
+                                    row[sourceDatabaseCol] = db.DatabaseName;
                                 }
                             }
                         }
