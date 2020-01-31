@@ -213,12 +213,14 @@ namespace BulkQuery
             RunQuery();
         }
 
-        private void RunQuery()
+        private async Task RunQuery()
         {
             var query = QueryTextBox.Text;
             var databases = GetSelectedDatabases().ToList();
             var timer = Stopwatch.StartNew();
-            var result = QueryRunner.BulkQuery(databases, query, Settings.SqlTimeout).Result;
+            RunQueryButton.IsEnabled = false;
+            var result = await QueryRunner.BulkQuery(databases, query, Settings.SqlTimeout);
+            RunQueryButton.IsEnabled = true;
             Debug.WriteLine("Total query time: " + timer.ElapsedMilliseconds);
             if (result.Messages.Count > 0)
             {

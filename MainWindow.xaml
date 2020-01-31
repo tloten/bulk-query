@@ -68,7 +68,7 @@
                 </Grid.RowDefinitions>
                 <DockPanel Grid.Row="0">
                     <StackPanel Margin="5" Orientation="Horizontal" DockPanel.Dock="Bottom">
-                        <Button Click="ButtonQuery_OnClick" Padding="10 2">Run Query (F5)</Button>
+                        <Button Name="RunQueryButton" Click="ButtonQuery_OnClick" Padding="10 2">Run Query (F5)</Button>
                     </StackPanel>
                     <TextBox x:Name="QueryTextBox" TextWrapping="Wrap" AcceptsReturn="True" FontFamily="Courier New" VerticalScrollBarVisibility="Auto" />
                 </DockPanel>

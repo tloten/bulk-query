@@ -138,36 +138,71 @@ namespace BulkQuery
             builder.InitialCatalog = db.DatabaseName;
             using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
             {
+                // Adds poor man support for SMSS 'GO' keyword to split sql into separate command batches.
+                // In this mode, the last sql statement is expected to be the one that returns the results.
+
+                query += "\nGO";   // make sure last batch is executed.
+                var sql = query
+                    .Split(new string[2] { "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries)
+                    .Aggregate(new SqlTextState { CurrentCommand = "", CompleteCommands = new List<string>() }, (s, line) =>
+                    {
+                        if (line.ToUpperInvariant().Trim() == "GO")
+                        {
+                            s.CompleteCommands.Add(s.CurrentCommand);
+                            s.CurrentCommand = "";
+                        }
+                        else
+                        {
+                            s.CurrentCommand += line + "\n";
+                        }
+                        return s;
+                    });
+
                 try
                 {
                     Debug.WriteLine("connecting to " + friendlyDbName);
                     await connection.OpenAsync();
-                    var command = connection.CreateCommand();
-                    command.CommandText = query;
-                    command.CommandTimeout = sqlTimeout;
-                    Debug.WriteLine("querying " + friendlyDbName);
-                    using (var dataReader = await command.ExecuteReaderAsync())
+
+                    int i = 0;
+                    foreach (var sqlCommand in sql.CompleteCommands)
                     {
-                        Debug.WriteLine("reading results from " + friendlyDbName);
-                        result.ResultTable = ReadTable(dataReader);
-                        result.ResultTable.TableName = friendlyDbName;
-                        Debug.WriteLine("finished reading results from " + friendlyDbName);
+                        var command = connection.CreateCommand();
+                        command.CommandText = sqlCommand;
+                        command.CommandTimeout = sqlTimeout;
+                        Debug.WriteLine("querying " + friendlyDbName);
 
-                        // Add a column that shows which DB it came from.
-                        var sourceCol = new DataColumn("Source Database", typeof(string));
-                        result.ResultTable.Columns.Add(sourceCol);
-                        foreach (var col in result.ResultTable.Columns.Cast<DataColumn>().ToList())
+                        if (i < sql.CompleteCommands.Count - 1) // if not last one
                         {
-                            if (col != sourceCol)
-                                col.SetOrdinal(col.Ordinal + 1);
+                            await command.ExecuteNonQueryAsync();
                         }
-                        sourceCol.SetOrdinal(0);
+                        else
+                        {
+                            using (var dataReader = await command.ExecuteReaderAsync())
+                            {
+                                Debug.WriteLine("reading results from " + friendlyDbName);
+                                result.ResultTable = ReadTable(dataReader);
+                                result.ResultTable.TableName = friendlyDbName;
+                                Debug.WriteLine("finished reading results from " + friendlyDbName);
 
-                        foreach (var row in result.ResultTable.Rows.Cast<DataRow>())
-                        {
-                            row[sourceCol] = friendlyDbName;
+                                // Add a column that shows which DB it came from.
+                                var sourceCol = new DataColumn("Source Database", typeof(string));
+                                result.ResultTable.Columns.Add(sourceCol);
+                                foreach (var col in result.ResultTable.Columns.Cast<DataColumn>().ToList())
+                                {
+                                    if (col != sourceCol)
+                                        col.SetOrdinal(col.Ordinal + 1);
+                                }
+                                sourceCol.SetOrdinal(0);
+
+                                foreach (var row in result.ResultTable.Rows.Cast<DataRow>())
+                                {
+                                    row[sourceCol] = friendlyDbName;
+                                }
+                            }
                         }
+                        i++;
                     }
+                    
                 }
                 catch (Exception ex)
                 {
@@ -223,6 +258,12 @@ namespace BulkQuery
                 dt.Rows.Add(dataRow);
             }
             return dt;
+        }
+
+        private class SqlTextState
+        {
+            public string CurrentCommand;
+            public List<string> CompleteCommands;
         }
     }
 }
