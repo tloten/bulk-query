@@ -6,12 +6,12 @@ namespace BulkQuery
 {
     public class UserSettingsManager<T> where T : class
     {
-        private readonly string _filePath;
-
         public UserSettingsManager(string fileName)
         {
-            _filePath = GetLocalFilePath(fileName);
+            FilePath = GetLocalFilePath(fileName);
         }
+
+        public string FilePath { get; private set; }
 
         private static string GetLocalFilePath(string fileName)
         {
@@ -20,14 +20,14 @@ namespace BulkQuery
         }
 
         public T LoadSettings() =>
-            File.Exists(_filePath) ?
-                JsonConvert.DeserializeObject<T>(File.ReadAllText(_filePath)) :
+            File.Exists(FilePath) ?
+                JsonConvert.DeserializeObject<T>(File.ReadAllText(FilePath)) :
                 null;
 
         public void SaveSettings(T settings)
         {
             string json = JsonConvert.SerializeObject(settings);
-            File.WriteAllText(_filePath, json);
+            File.WriteAllText(FilePath, json);
         }
     }
 }

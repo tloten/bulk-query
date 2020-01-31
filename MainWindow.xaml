@@ -1,4 +1,4 @@
-﻿<Window x:Class="BulkQuery.MainWindow"
+<Window x:Class="BulkQuery.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -46,7 +46,8 @@
                 <MenuItem Header="_Exit" />
             </MenuItem>
             <MenuItem Header="_Help">
-                <MenuItem Header="_View On Github" Click="MenuItem_Github_Click"  />
+                <MenuItem Header="_Open User Settings" Click="MenuItem_OpenUserSettings_Click" Name="OpenUserSettingsMenuItem" />
+                <MenuItem Header="_View On Github" Click="MenuItem_Github_Click" Name="ViewOnGithubMenuItem" />
             </MenuItem>
         </Menu>
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -18,6 +18,8 @@ namespace BulkQuery
     /// </summary>
     public partial class MainWindow : Window
     {
+        const string githubUri = "https://github.com/tloten/bulk-query";
+
         private readonly List<TreeViewModel<DatabaseTreeNode>> databaseTreeModel = new List<TreeViewModel<DatabaseTreeNode>>();
         private readonly string[] systemDatabases = {"master", "model", "msdb", "tempdb"};
         private readonly UserSettingsManager<BulkQueryUserSettings> settingsManager;
@@ -33,6 +35,9 @@ namespace BulkQuery
                 SqlTimeout = 60,
             };
             Settings.Servers = Settings.Servers ?? new List<ServerDefinition>();
+
+            OpenUserSettingsMenuItem.ToolTip = $"Opens the file at '{settingsManager.FilePath}'";
+            ViewOnGithubMenuItem.ToolTip = $"Opens '{githubUri}'";
         }
 
         public BulkQueryUserSettings Settings { get; private set; }
@@ -243,7 +248,7 @@ namespace BulkQuery
 
         private void MenuItem_Github_Click(object sender, RoutedEventArgs e)
         {
-            System.Diagnostics.Process.Start("https://github.com/tloten/bulk-query");
+            Process.Start(githubUri);
         }
 
         private void Window_KeyDown(object sender, KeyEventArgs e)
@@ -257,6 +262,14 @@ namespace BulkQuery
         {
             if (!int.TryParse(e.Text, out var _))
                 e.Handled = true;
+        }
+
+        private void MenuItem_OpenUserSettings_Click(object sender, RoutedEventArgs e)
+        {
+            if (!System.IO.File.Exists(settingsManager.FilePath))
+                SaveSettings();
+
+            Process.Start(settingsManager.FilePath);
         }
     }
 
