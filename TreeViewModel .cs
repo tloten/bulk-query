@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 
@@ -18,6 +18,8 @@ namespace BulkQuery
             get { return isChecked; }
             set { SetIsChecked(value, true, true); }
         }
+
+        public bool IsExpanded { get; set; }
 
         public TreeViewModel(string name, T value)
         {

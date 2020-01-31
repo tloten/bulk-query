@@ -92,7 +92,7 @@ namespace BulkQuery
                 var serverNodeViewModel = new TreeViewModel<DatabaseTreeNode>(server.DisplayName, serverNode);
                 databaseTreeModel.Add(serverNodeViewModel);
 
-                serverNodeViewModel.IsChecked = true;
+                serverNodeViewModel.IsExpanded = false;
 
                 foreach (var db in databases.OrderBy(db => db.DatabaseName))
                 {

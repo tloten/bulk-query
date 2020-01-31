@@ -11,8 +11,7 @@
     <Window.Resources>
         <ResourceDictionary>
             <Style x:Key="TreeViewItemStyle" TargetType="TreeViewItem">
-                <Setter Property="IsExpanded" Value="True" />
-                <Setter Property="IsSelected" Value="{Binding IsInitiallySelected, Mode=OneTime}" />
+                <Setter Property="IsExpanded" Value="{Binding IsExpanded}" />
                 <Setter Property="KeyboardNavigation.AcceptsReturn" Value="True" />
                 <EventSetter Event="PreviewMouseRightButtonDown" Handler="DatabasesTreeView_PreviewMouseButton" />
             </Style>
