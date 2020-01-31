@@ -76,11 +76,11 @@
                 <DockPanel Grid.Row="2">
                     <Grid Grid.Column="2" Name="ResultsGrid">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="30" />
+                            <RowDefinition Height="0" Name="TextBoxMessagesRow" />
                             <RowDefinition Height="5" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
-                        <TextBox x:Name="TextBoxMessages" Visibility="Collapsed" IsReadOnly="True" VerticalScrollBarVisibility="Auto" Foreground="Red" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                        <TextBox x:Name="TextBoxMessages" IsReadOnly="True" VerticalScrollBarVisibility="Auto" Foreground="Red" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
                         <GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch" />
                         <DataGrid x:Name="ResultDataGrid" IsReadOnly="True" SelectionUnit="CellOrRowHeader" AreRowDetailsFrozen="True" Grid.Row="2" />
                     </Grid>

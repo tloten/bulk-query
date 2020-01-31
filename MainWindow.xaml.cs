@@ -225,12 +225,13 @@ namespace BulkQuery
             if (result.Messages.Count > 0)
             {
                 TextBoxMessages.Text = string.Join(Environment.NewLine, result.Messages);
-                TextBoxMessages.Visibility = Visibility.Visible;
+                if (TextBoxMessagesRow.ActualHeight == 0)
+                    TextBoxMessagesRow.Height = new GridLength(60);
             }
             else
             {
                 TextBoxMessages.Text = string.Empty;
-                TextBoxMessages.Visibility = Visibility.Collapsed;
+                TextBoxMessagesRow.Height = new GridLength(0);
             }
 
             if (result.ResultTable != null)
