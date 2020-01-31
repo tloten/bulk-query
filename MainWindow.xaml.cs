@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -8,8 +8,6 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Xml;
-using BulkQuery.Properties;
 
 namespace BulkQuery
 {
@@ -61,7 +59,6 @@ namespace BulkQuery
                 }
             };
             DatabasesTreeView.Focus();
-            InputManager.Current.ProcessInput(new KeyEventArgs(Keyboard.PrimaryDevice, PresentationSource.FromVisual(DatabasesTreeView), 0, Key.Down) { RoutedEvent = Keyboard.KeyDownEvent });
         }
 
         private void SaveSettings()
@@ -112,7 +109,7 @@ namespace BulkQuery
                     dbNodeViewModel.InitParent(serverNodeViewModel);
                 }
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 var serverNodeViewModel = new TreeViewModel<DatabaseTreeNode>(server.DisplayName + " (Connection Failed)", serverNode);
                 databaseTreeModel.Add(serverNodeViewModel);
@@ -208,7 +205,7 @@ namespace BulkQuery
         
         private void ButtonQuery_OnClick(object sender, RoutedEventArgs e)
         {
-            RunQuery();
+            _ = RunQuery();
         }
 
         private async Task RunQuery()
@@ -255,7 +252,7 @@ namespace BulkQuery
         {
             if (e.Key == Key.F5)
             {
-                RunQuery();
+                _ = RunQuery();
             }
         }
         private void ValidateTextboxEntryIsInteger(object sender, TextCompositionEventArgs e)
