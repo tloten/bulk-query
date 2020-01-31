@@ -40,14 +40,7 @@ namespace BulkQuery
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             var serverTasks = new List<Task>();
-            foreach (var server in Settings.Servers)
-            {
-                var task = new Task(() => AddNodesForServer(server));
-                serverTasks.Add(task);
-                task.Start();
-
-            }
-            Task.WaitAll(serverTasks.ToArray());
+            Settings.Servers.AsParallel().ForAll(AddNodesForServer);
             databaseTreeModel.Sort(new Comparison<TreeViewModel<DatabaseTreeNode>>((i,j) => i.Value.ServerDefinition.DisplayName.CompareTo(j.Value.ServerDefinition.DisplayName)));
 
             DatabasesTreeView.ItemsSource = databaseTreeModel;
@@ -119,8 +112,6 @@ namespace BulkQuery
                 var serverNodeViewModel = new TreeViewModel<DatabaseTreeNode>(server.DisplayName + " (Connection Failed)", serverNode);
                 databaseTreeModel.Add(serverNodeViewModel);
             }
-
-            DatabasesTreeView.Items.Refresh();
         }
 
         private void MenuItem_AddServer_OnClick(object sender, RoutedEventArgs e)
@@ -137,6 +128,7 @@ namespace BulkQuery
 
                 var server = new ServerDefinition(dialog.ServerDisplayName, dialog.ServerConnectionString);
                 AddNodesForServer(server);
+                DatabasesTreeView.Items.Refresh();
 
                 servers.Add(server);
                 SaveSettings();
@@ -175,6 +167,7 @@ namespace BulkQuery
                 {
                     RemoveServer(selectedElement.Value.ServerDefinition);
                     AddNodesForServer(selectedElement.Value.ServerDefinition);
+                    DatabasesTreeView.Items.Refresh();
                 };
                 menu.Items.Add(menuItem);
 
