@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 
 namespace BulkQuery
@@ -10,6 +11,7 @@ namespace BulkQuery
     {
         public string ConnectionString { get; set; }
         public string DisplayName { get; set; }
+        public List<String> SelectedDatabases { get; set; }
 
         // Empty ctor for Xml Serialization
         public ServerDefinition() { }
@@ -18,6 +20,7 @@ namespace BulkQuery
         {
             DisplayName = displayName;
             ConnectionString = connectionString;
+            SelectedDatabases = new List<string>();
         }
     }
 }
