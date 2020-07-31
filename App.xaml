@@ -4,6 +4,6 @@
              xmlns:local="clr-namespace:BulkQuery"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+
     </Application.Resources>
 </Application>

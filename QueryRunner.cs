@@ -63,7 +63,7 @@ namespace BulkQuery
 
         public static Task<QueryResult> BulkQuery(IList<DatabaseDefinition> databases, string query, int sqlTimeout)
         {
-            // Needed to push all async code to thread pool thread (otherwise UI thread attempts to keep thread affinity 
+            // Needed to push all async code to thread pool thread (otherwise UI thread attempts to keep thread affinity
             // for each async continuation).
             // http://stackoverflow.com/a/14485163/505457
             return Task.Run(() => BulkQueryInternal(databases, query, sqlTimeout));
@@ -198,7 +198,7 @@ namespace BulkQuery
                         }
                         i++;
                     }
-                    
+
                 }
                 catch (Exception ex)
                 {

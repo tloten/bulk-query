@@ -7,7 +7,7 @@
         xmlns:properties="clr-namespace:BulkQuery.Properties"
         mc:Ignorable="d"
         Title="Bulk Query" Height="500" Width="800" Loaded="Window_Loaded" Closing="Window_Closing" KeyDown="Window_KeyDown">
-    
+
     <Window.Resources>
         <ResourceDictionary>
             <Style x:Key="TreeViewItemStyle" TargetType="TreeViewItem">
@@ -15,7 +15,7 @@
                 <Setter Property="KeyboardNavigation.AcceptsReturn" Value="True" />
                 <EventSetter Event="PreviewMouseRightButtonDown" Handler="DatabasesTreeView_PreviewMouseButton" />
             </Style>
-            
+
             <HierarchicalDataTemplate x:Key="CheckBoxItemTemplate" ItemsSource="{Binding Children, Mode=OneTime}">
                 <StackPanel Orientation="Horizontal">
                     <CheckBox Focusable="False" IsChecked="{Binding IsChecked}" VerticalAlignment="Center" />
@@ -56,7 +56,7 @@
                 <ColumnDefinition Width="5" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <TreeView Grid.Column="0" x:Name="DatabasesTreeView" 
+            <TreeView Grid.Column="0" x:Name="DatabasesTreeView"
                           ItemContainerStyle="{StaticResource TreeViewItemStyle}"
                           ItemTemplate="{StaticResource CheckBoxItemTemplate}" />
             <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" DragDelta="MainGrid_OnDragDelta" />

@@ -33,7 +33,7 @@ namespace BulkQuery
             parentNode = parent;
             SyncParentState();
         }
-        
+
         private void SetIsChecked(bool? value, bool updateChildren, bool updateParent)
         {
             if (value == isChecked)
@@ -43,7 +43,7 @@ namespace BulkQuery
 
             if (updateChildren && isChecked.HasValue)
                 Children.ForEach(c => c.SetIsChecked(isChecked, updateChildren:true, updateParent:false));
-            
+
             NotifyPropertyChanged("IsChecked");
 
             if(updateParent && parentNode != null)

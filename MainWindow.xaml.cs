@@ -19,7 +19,7 @@ namespace BulkQuery
         const string githubUri = "https://github.com/tloten/bulk-query";
 
         private readonly List<TreeViewModel<DatabaseTreeNode>> databaseTreeModel = new List<TreeViewModel<DatabaseTreeNode>>();
-        private readonly string[] systemDatabases = {"master", "model", "msdb", "tempdb"};
+        private readonly string[] systemDatabases = {"master", "model", "msdb", "tempdb", "rdsadmin"};
         private readonly UserSettingsManager<BulkQueryUserSettings> settingsManager;
 
         public MainWindow()
@@ -81,16 +81,11 @@ namespace BulkQuery
                 ServerDefinition = server,
                 IsServerNode = true
             };
-
             try
             {
                 var databases = QueryRunner.GetDatabasesForServer(server);
 
-                var serverNodeViewModel = new TreeViewModel<DatabaseTreeNode>(server.DisplayName, serverNode);
-                databaseTreeModel.Add(serverNodeViewModel);
-
-                serverNodeViewModel.IsExpanded = false;
-
+                var nodes = new List<TreeViewModel<DatabaseTreeNode>>();
                 foreach (var db in databases.OrderBy(db => db.DatabaseName))
                 {
                     if (Settings.HideSystemDatabases && systemDatabases.Contains(db.DatabaseName))
@@ -105,9 +100,16 @@ namespace BulkQuery
                     };
                     var dbNodeViewModel = new TreeViewModel<DatabaseTreeNode>(db.DatabaseName, dbNode);
                     dbNodeViewModel.IsChecked = server.SelectedDatabases.Contains(db.DatabaseName);
-                    serverNodeViewModel.Children.Add(dbNodeViewModel);
-                    dbNodeViewModel.InitParent(serverNodeViewModel);
+                    nodes.Add(dbNodeViewModel);
                 }
+
+                var serverNodeViewModel = new TreeViewModel<DatabaseTreeNode>($"{server.DisplayName} ({nodes.Count})", serverNode);
+                serverNodeViewModel.Children.AddRange(nodes);
+                serverNodeViewModel.IsExpanded = false;
+
+                nodes.ForEach(node => node.InitParent(serverNodeViewModel));
+
+                databaseTreeModel.Add(serverNodeViewModel);
             }
             catch(Exception)
             {
@@ -181,7 +183,7 @@ namespace BulkQuery
                 };
                 menu.Items.Add(menuItem);
             }
-                
+
             (sender as TreeViewItem).ContextMenu = menu;
         }
 
@@ -202,7 +204,7 @@ namespace BulkQuery
                     .SelectMany(serverNode => serverNode.Children.Where(dbNode => dbNode.IsChecked ?? true))
                     .Select(treeNode => treeNode.Value.DatabaseDefinition);
         }
-        
+
         private void ButtonQuery_OnClick(object sender, RoutedEventArgs e)
         {
             _ = RunQuery();
