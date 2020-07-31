@@ -81,16 +81,11 @@ namespace BulkQuery
                 ServerDefinition = server,
                 IsServerNode = true
             };
-
             try
             {
                 var databases = QueryRunner.GetDatabasesForServer(server);
 
-                var serverNodeViewModel = new TreeViewModel<DatabaseTreeNode>(server.DisplayName, serverNode);
-                databaseTreeModel.Add(serverNodeViewModel);
-
-                serverNodeViewModel.IsExpanded = false;
-
+                var nodes = new List<TreeViewModel<DatabaseTreeNode>>();
                 foreach (var db in databases.OrderBy(db => db.DatabaseName))
                 {
                     if (Settings.HideSystemDatabases && systemDatabases.Contains(db.DatabaseName))
@@ -105,9 +100,16 @@ namespace BulkQuery
                     };
                     var dbNodeViewModel = new TreeViewModel<DatabaseTreeNode>(db.DatabaseName, dbNode);
                     dbNodeViewModel.IsChecked = server.SelectedDatabases.Contains(db.DatabaseName);
-                    serverNodeViewModel.Children.Add(dbNodeViewModel);
-                    dbNodeViewModel.InitParent(serverNodeViewModel);
+                    nodes.Add(dbNodeViewModel);
                 }
+
+                var serverNodeViewModel = new TreeViewModel<DatabaseTreeNode>($"{server.DisplayName} ({nodes.Count})", serverNode);
+                serverNodeViewModel.Children.AddRange(nodes);
+                serverNodeViewModel.IsExpanded = false;
+
+                nodes.ForEach(node => node.InitParent(serverNodeViewModel));
+
+                databaseTreeModel.Add(serverNodeViewModel);
             }
             catch(Exception)
             {
