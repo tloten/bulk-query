@@ -19,7 +19,7 @@ namespace BulkQuery
         const string githubUri = "https://github.com/tloten/bulk-query";
 
         private readonly List<TreeViewModel<DatabaseTreeNode>> databaseTreeModel = new List<TreeViewModel<DatabaseTreeNode>>();
-        private readonly string[] systemDatabases = {"master", "model", "msdb", "tempdb"};
+        private readonly string[] systemDatabases = {"master", "model", "msdb", "tempdb", "rdsadmin"};
         private readonly UserSettingsManager<BulkQueryUserSettings> settingsManager;
 
         public MainWindow()
