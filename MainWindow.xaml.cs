@@ -183,7 +183,7 @@ namespace BulkQuery
                 };
                 menu.Items.Add(menuItem);
             }
-                
+
             (sender as TreeViewItem).ContextMenu = menu;
         }
 
@@ -204,7 +204,7 @@ namespace BulkQuery
                     .SelectMany(serverNode => serverNode.Children.Where(dbNode => dbNode.IsChecked ?? true))
                     .Select(treeNode => treeNode.Value.DatabaseDefinition);
         }
-        
+
         private void ButtonQuery_OnClick(object sender, RoutedEventArgs e)
         {
             _ = RunQuery();
