@@ -70,7 +70,16 @@
                     <StackPanel Margin="5" Orientation="Horizontal" DockPanel.Dock="Bottom">
                         <Button Name="RunQueryButton" Click="ButtonQuery_OnClick" Padding="10 2">Run Query (F5)</Button>
                     </StackPanel>
-                    <TextBox x:Name="QueryTextBox" TextWrapping="Wrap" AcceptsReturn="True" FontFamily="Courier New" VerticalScrollBarVisibility="Auto" />
+                    <avalonEdit:TextEditor
+                        xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
+                        Name="QueryTextBox"
+                        SyntaxHighlighting="TSQL"
+                        FontFamily="Courier New"
+                        FontSize="10pt"
+                        ShowLineNumbers="True" 
+                        HorizontalScrollBarVisibility="Auto"
+                        VerticalScrollBarVisibility="Auto"
+                        LineNumbersForeground="#FF2B91AF"/>
                 </DockPanel>
                 <GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch" DragDelta="RightHandGrid_OnDragDelta" />
                 <DockPanel Grid.Row="2">

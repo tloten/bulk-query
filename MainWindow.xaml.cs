@@ -59,6 +59,9 @@ namespace BulkQuery
                 }
             };
             DatabasesTreeView.Focus();
+            // TODO look at adding code completion based on 
+            // https://www.codeproject.com/Articles/42490/Using-AvalonEdit-WPF-Text-Editor
+            // https://stackoverflow.com/questions/13263046/sql-intellisense-in-wpf-textbox
         }
 
         private void SaveSettings()
