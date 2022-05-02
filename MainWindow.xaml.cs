@@ -77,6 +77,11 @@ namespace BulkQuery
             settingsManager.SaveSettings(Settings);
         }
 
+        private void RemoveNodeForServer(ServerDefinition server)
+        {
+            databaseTreeModel.Remove(databaseTreeModel.First(s => s.Value.ServerDefinition == server));
+        }
+
         private void AddNodesForServer(ServerDefinition server)
         {
             var serverNode = new DatabaseTreeNode
@@ -126,20 +131,23 @@ namespace BulkQuery
             AddServerDialog dialog = new AddServerDialog();
             if (dialog.ShowDialog() == true)
             {
-                var servers = Settings.Servers;
-                if (servers.Any(s => s.DisplayName == dialog.ServerDisplayName))
+                if (Settings.Servers.Any(s => s.DisplayName == dialog.ServerDisplayName))
                 {
                     MessageBox.Show("A server already exists with this name.\nChoose a different name and try again.", "", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                     return;
                 }
 
-                var server = new ServerDefinition(dialog.ServerDisplayName, dialog.ServerConnectionString);
-                AddNodesForServer(server);
-                DatabasesTreeView.Items.Refresh();
-
-                servers.Add(server);
-                SaveSettings();
+                AddServer(dialog.ServerDisplayName, dialog.ServerConnectionString);
             }
+        }
+
+        private void AddServer(string displayName, string connectionString)
+        {
+            var server = new ServerDefinition(displayName, connectionString);
+            AddNodesForServer(server);
+            DatabasesTreeView.Items.Refresh();
+            Settings.Servers.Add(server);
+            SaveSettings();
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -172,7 +180,7 @@ namespace BulkQuery
                 menuItem.Header = "Refresh Databases";
                 menuItem.Click += (o, args) =>
                 {
-                    RemoveServer(selectedElement.Value.ServerDefinition);
+                    RemoveNodeForServer(selectedElement.Value.ServerDefinition);
                     AddNodesForServer(selectedElement.Value.ServerDefinition);
                     DatabasesTreeView.Items.Refresh();
                 };
@@ -192,11 +200,9 @@ namespace BulkQuery
 
         private void RemoveServer(ServerDefinition server)
         {
-            var servers = Settings.Servers;
-            servers.Remove(server);
+            Settings.Servers.Remove(server);
             SaveSettings();
-            var nodeToRemove = databaseTreeModel.FirstOrDefault(s => s.Value.ServerDefinition == server);
-            databaseTreeModel.Remove(nodeToRemove);
+            RemoveNodeForServer(server);
             DatabasesTreeView.Items.Refresh();
         }
 
